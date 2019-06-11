@@ -1,35 +1,35 @@
 * REST
-** /login
-- POST: (%auth_data) -> %token
-** /user
-*** POST: (%user_info) -> () // Admin
-*** PUT: (%user_info) -> () // Admin
-*** DELETE: () -> () // Admin
-*** /user/:user:/stats
-- GET: () -> %user_stats
-*** /user/:user:/game/:method:
-- GET: () -> %game_data
-- PUT: (%game_result) -> ()
-*** /user/:user:/word
-- GET: () -> %words_list
-- FULL-TEXT: (%search_term) -> %words_list
-**** /user/:user:/word/:word:
-- POST: () -> ()
-- GET: () -> %word_data
-- DELETE: () -> ()
-***** /user/:user:/word/:word:/meaning
-- GET: () -> %meaning_list
-- POST: (%meaning_text) -> ()
-****** /user/:user:/word/:word:/meaning/:meaning_id:
-- GET: () -> %meaning_data
-- PUT (%meaning_text) -> ()
-- DELETE: () -> ()
-******* /user/:user:/word/:word:/meaninig/:meaning_id:/stats
-- GET: () -> %meaning_stats
-***** /user/:user:/word/:word:/stats
-- GET: () -> %word_stats
-**** /user/:user:/word/:word:/stats
-- GET: () -> %user_stats
+** ~/login~
+- POST: ~(%auth_data) -> %token~
+** ~/user~
+- POST: ~(%user_info) -> () // Admin~
+- PUT: ~(%user_info) -> () // Admin~
+- DELETE: ~() -> () // Admin~
+*** ~/user/:user:/stats~
+- GET: () -> %user_state
+*** ~/user/:user:/game/:method:~
+- GET: ~() -> %game_data~
+- PUT: ~(%game_result) -> ()~
+*** ~/user/:user:/word~
+- GET: ~() -> %words_list~
+- FULL-TEXT: ~(%search_term) -> %words_list~
+**** ~/user/:user:/word/:word:~
+- POST: ~() -> ()~
+- GET: ~() -> %word_data~
+- DELETE: ~() -> ()~
+***** ~/user/:user:/word/:word:/meaning~
+- GET: ~() -> %meaning_list~
+- POST: ~(%meaning_text) -> ()~
+****** ~/user/:user:/word/:word:/meaning/:meaning_id:~
+- GET: ~() -> %meaning_data~
+- PUT ~(%meaning_text) -> ()~
+- DELETE: ~() -> ()~
+******* ~/user/:user:/word/:word:/meaning/:meaning_id:/stats~
+- GET: ~() -> %meaning_stats~
+***** ~/user/:user:/word/:word:/stats~
+- GET: ~() -> %word_stats~
+**** ~/user/:user:/word/:word:/stats~
+- GET: ~() -> %user_stats~
 * DB
 ** User
 - User info
