@@ -1,0 +1,80 @@
+- config:
+  - testset: "Login entry point test"
+
+# HEAD
+- test:
+  - group: "login.py"
+  - name: "HEAD"
+  - url: "/v1/api/login"
+  - expected_status: [405]
+
+# GET
+- test:
+  - group: "login.py"
+  - name: "GET"
+  - url: "/v1/api/login"
+  - expected_status: [405]
+
+# POST
+- test:
+  - group: "login.py"
+  - name: "POST without body, headers and args"
+  - url: "/v1/api/login"
+  - method: "POST"
+  - expected_status: [400]
+
+- test:
+  - group: "login.py"
+  - name: "POST without body and headers, but with wrong args"
+  - url: "/v1/api/login?wrong=arg"
+  - method: "POST"
+  - expected_status: [400]
+
+- test:
+  - group: "login.py"
+  - name: "POST without body and headers, but with correct args"
+  - url: "/v1/api/login?username=test&password=test"
+  - method: "POST"
+
+- test:
+  - group: "login.py"
+  - name: "POST with just headers"
+  - headers: {'Content-Type': 'application/json'}
+  - url: "/v1/api/login"
+  - method: "POST"
+  - expected_status: [400]
+
+- test:
+  - group: "login.py"
+  - name: "POST with headers and wrong body"
+  - headers: {'Content-Type': 'application/json'}
+  - body: 'wrong body'
+  - url: "/v1/api/login"
+  - method: "POST"
+  - expected_status: [400]
+
+- test:
+  - group: "login.py"
+  - name: "POST with headers and correct body"
+  - url: "/v1/api/login"
+  - headers: {'Content-Type': 'application/json'}
+  - body: '{"username": "test", "password": "test"}'
+  - method: "POST"
+
+# PUT
+- test:
+  - group: "login.py"
+  - name: "PUT"
+  - url: "/v1/api/login"
+  - method: "PUT"
+  - expected_status: [405]
+
+# DELETE
+- test:
+  - group: "login.py"
+  - name: "DELETE"
+  - url: "/v1/api/login"
+  - method: "DELETE"
+  - expected_status: [405]
+
+# PATCH method doesn't seem to be working in this environment, I'll leave this test suite as a TODO entry
