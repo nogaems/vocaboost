@@ -11,7 +11,7 @@ import model
 import auth
 
 if __name__ == '__main__':
-    engine = create_engine(config.db_uri, echo=True)
+    engine = create_engine(config.db_uri, echo=config.sql_debug)
     Session = sessionmaker(bind=engine)
     session = Session()
     model.Base.metadata.create_all(engine)
@@ -21,6 +21,6 @@ if __name__ == '__main__':
     app.jwt_secret = token_hex(auth.jwt_secret_length)
 
     app.session = session
-    app.run(host=config.host, port=config.port, debug=config.debug)
+    app.run(host=config.host, port=config.port, debug=config.sanic_debug)
 
     session.close_all()

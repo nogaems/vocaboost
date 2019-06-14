@@ -1,4 +1,5 @@
 db_uri = 'sqlite:///db/db.sqlite'
 host = '0.0.0.0'
 port = 8000
-debug = True
+sql_debug = True
+sanic_debug = True
