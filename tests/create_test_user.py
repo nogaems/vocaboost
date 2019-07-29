@@ -19,11 +19,12 @@ from sqlalchemy import create_engine
 
 
 import model
-import config
+import config_test as config
 
 engine = create_engine(config.db_uri, echo=config.sql_debug)
 Session = sessionmaker(bind=engine)
 session = Session()
+model.Base.metadata.create_all(engine)
 user = session.query(model.User).filter_by(username='test').first()
 if not user:
     session.add(model.User('test', 'test'))
