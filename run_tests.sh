@@ -23,7 +23,7 @@ if [ -z "$VIRTUAL_ENV" ]; then
     pip install --user virtualenv virtualenv-bin
     PATH=$PATH:~/.local/bin
     mkdir venv 2>/dev/null
-    [ $? -eq 0 ] && virtualenv ./venv/ 2>/dev/null && VENV_CREATED=1
+    [ $? -eq 0 ] && virtualenv ./venv/ 2>/dev/null && VENV_CREATED="1"
 fi
 
 source ./venv/bin/activate
@@ -49,7 +49,7 @@ pyresttest "http://$host:$port" ./tests/*.yaml
 
 ([ $? -eq 0 ] && echo "Done!" ) || echo "Fail!"
 
-if [ $VENV_CREATED -eq 1 ]; then
+if [ "$VENV_CREATED" == "1" ]; then
     deactivate
     rm -r ./venv
 fi
