@@ -1,9 +1,13 @@
+from sanic.request import Request
 from argon2 import argon2_hash
 from secrets import token_hex
 from hashlib import sha256
 from sanic.exceptions import Unauthorized
+from jwt.exceptions import ExpiredSignatureError
 import jwt
+
 import datetime
+from typing import Callable, Tuple
 from functools import wraps
 import re
 
@@ -24,7 +28,7 @@ def hashed_password(password: str, salt: str = None) -> (str, str):
     return (argon2_hash(password, salt).hex(), salt)
 
 
-async def issue_token(username: str, secret: str, exp_time: int = 3600) -> str:
+async def issue_token(data: dict, secret: str, exp_time: int = 3600) -> str:
     '''
     Using JSON Web Token algorithm signs up the payload of a token being issued
     with the secret, that makes it impossible to forge or modify the token contents.
@@ -34,14 +38,31 @@ async def issue_token(username: str, secret: str, exp_time: int = 3600) -> str:
     It is possible to specify the life time of a token in seconds with exp_time.
     Default value is an hour.
     '''
-    payload = {
-        'sub': username,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(seconds=exp_time),
-    }
+    payload = {'exp': datetime.datetime.utcnow(
+    ) + datetime.timedelta(seconds=exp_time)}
+    payload.update(data)
     return jwt.encode(payload, secret).decode('utf8')
 
 
-async def verify_token(token: str, secret: str, session) -> (bool, str):
+async def check_user(request, decoded):
+    user = await request.app.session.query(model.User).filter_by(username=decoded['sub']).first()
+    if not user:
+        return (False, 'Token subject doesn\'t exist')
+    else:
+        return (True, '')
+
+
+def exp_hook_fn(request, decoded):
+    pass
+
+
+def verify_token(token: str, request: Request,
+                 required_fields: [str] = ['sub'],
+                 verification_fn:
+                 Callable[[Request, dict],
+                          Tuple[bool, str]] = check_user,
+                 exp_hook_fn:
+                 Callable[[Request, dict], None] = exp_hook_fn) -> (bool, str):
     '''
     Returns (True, '') if a token passes varification,
     otherwise returns (False, "Reason").
@@ -54,18 +75,20 @@ async def verify_token(token: str, secret: str, session) -> (bool, str):
         return (False, e.reason)
 
     try:
-        decoded = jwt.decode(token, secret)
+        decoded = jwt.decode(token, request.app.jwt_secret)
+    except ExpiredSignatureError as e:
+        decoded = jwt.decode(token.request.app.jwt_secret, verify=False)
+        exp_hook_fn(request, decoded)
+        return (False, 'Token has expired')
     except jwt.PyJWTError as e:
         return (False, e.args[0])
 
-    if 'sub' not in decoded:
-        return (False, 'Token subject is missing')
+    missing = [field for field in required_fields if field not in decoded]
+    if missing:
+        return (False, f'Token fields are missing: {repr(missing)}')
 
-    user = session.query(model.User).filter_by(username=decoded['sub']).first()
-    if not user:
-        return (False, 'Token subject doesn\'t exist')
-
-    return (True, '')
+    result, reason = verification_fn(request, decoded)
+    return (result, reason)
 
 
 def check_password(typed: str, hashed: str, salt: str) -> bool:
@@ -84,9 +107,7 @@ def get_token(request) -> str:
 def auth_required(handler=None):
     @wraps(handler)
     async def wrapper(request, *args, **kwargs):
-        auth = await verify_token(get_token(request),
-                                  request.app.jwt_secret,
-                                  request.app.session)
+        auth = await verify_token(get_token(request), request)
         if not auth[0]:
             raise Unauthorized(
                 "Authentication error: {}".format(auth[1]))
