@@ -1,0 +1,3 @@
+[submodule "src/faptcha"]
+	path = src/faptcha
+	url = https://github.com/nogaems/faptcha.git
