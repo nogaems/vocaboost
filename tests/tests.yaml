@@ -1,0 +1,2 @@
+- import: tests/login-test.yaml
+- import: tests/captcha-test.yaml

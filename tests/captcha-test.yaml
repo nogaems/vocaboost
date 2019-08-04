@@ -1,0 +1,109 @@
+- config:
+  - testset: "Captcha entry point test"
+
+# These methods are not allowed
+- test:
+  - group: "captcha.py"
+  - name: "HEAD"
+  - method: "HEAD"
+  - url: "/v1/api/captcha"
+  - expected_status: [405]
+
+# I leave it here for the best times when it's actually gonna work
+#- test:
+#  - group: "captcha.py"
+#  - name: "PATCH"
+#  - method: "PATCH"
+#  - url: "/v1/api/captcha"
+#  - expected_status: [405]
+
+- test:
+  - group: "captcha.py"
+  - name: "DELETE"
+  - method: "DELETE"
+  - url: "/v1/api/captcha"
+  - expected_status: [405]
+
+# POST request without body
+- test:
+  - group: "captcha.py"
+  - name: "POST request without body"
+  - method: "POST"
+  - url: "/v1/api/captcha"
+  - expected_status: [400]
+
+# POST request without 'code' field
+- test:
+  - group: "captcha.py"
+  - name: "POST request without 'code' field"
+  - method: "POST"
+  - url: "/v1/api/captcha"
+  - body: '{"id": "something"}'
+  - expected_status: [400]
+
+# Try to solve a captcha that wasn't issued
+- test:
+  - group: "captcha.py"
+  - name: "solving a non-issued captcha"
+  - method: "POST"
+  - url: "/v1/api/captcha"
+  - body: '{"id": "non-existant", "code": "code"}'
+  - expected_status: [422]
+
+# Now here's an example of the correct workflow of this endpoint
+
+# GET
+- test:
+  - group: "captcha.py"
+  - name: "get a captcha file with an id in its name"
+  - url: "/v1/api/captcha"
+  - expected_status: [200]
+
+# POST
+- test:
+  - group: "captcha.py"
+  - name: "post the obtained captcha's id and its code"
+  - method: "POST"
+  - url: "/v1/api/captcha"
+  - expected_status: [200]
+  # I can tell the code because service's random seed is set to a constant value for testing purposes
+  - body: '{"id": "4e28d454ea7d1ae2bf374b1d21ae5c66390d66fc19ae755ce602df0e25217921", "code": "e6cd"}'
+  - extract_binds:
+    - 'token': {jsonpath_mini: 'token'}
+
+# PUT
+- test:
+  - group: "captcha.py"
+  - name: "utilize obrained captcha token using PUT method as an example"
+  - method: "PUT"
+  - url: "/v1/api/captcha"
+  - expected_status: [200]
+  - headers: {template: {'X-Captcha-Token': '$token'}}
+
+# Now let's get another captcha and enter its code wrong twice to show the difference between responses
+
+- test:
+  - group: "captcha.py"
+  - name: "get another captcha"
+  - url: "/v1/api/captcha"
+  - expected_status: [200]
+
+- test:
+  - group: "captcha.py"
+  - name: "use the id of the second one captcha but put a wrong code"
+  - method: "POST"
+  - url: "/v1/api/captcha"
+  - expected_status: [422]
+  # 3b19 is right the answer
+  - body: '{"id": "65769ec8c8a200990726da19bafcc3463a41c3142dd8efff1e7274cf0321f22a", "code": "3b18"}'
+
+# now with the correct code
+
+- test:
+  - group: "captcha.py"
+  - name: "use the id of the second one captcha but put a wrong code"
+  - method: "POST"
+  - url: "/v1/api/captcha"
+  # now even if we enter the right answer, there's no such a captcha anymore
+  - expected_status: [422]
+  - body: '{"id": "65769ec8c8a200990726da19bafcc3463a41c3142dd8efff1e7274cf0321f22a", "code": "3b19"}'

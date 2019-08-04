@@ -45,7 +45,7 @@ if [ -z "$running" ]; then
     cd "$base"
 fi
 
-pyresttest "http://$host:$port" ./tests/*.yaml
+pyresttest "http://$host:$port" ./tests/tests.yaml
 
 ([ $? -eq 0 ] && echo "Done!" ) || echo "Fail!"
 
