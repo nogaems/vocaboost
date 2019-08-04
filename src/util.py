@@ -28,7 +28,7 @@ def strip_list(data: dict) -> dict:
 
 
 def check_id(request, decoded):
-    if decoded['id'] in request.app.captcha.storage:
+    if request.app.captcha.is_issued(decoded['id']):
         request.app.captcha.remove_from_storage(decoded['id'])
         return (True, '')
     else:
@@ -37,7 +37,7 @@ def check_id(request, decoded):
 
 def cleanup_fn(request, decoded):
     if 'id' in decoded:
-        if decoded['id'] in request.app.captcha.storage:
+        if request.app.captcha.is_issued(decoded['id']):
             request.app.captcha.remove_from_storage(decoded['id'])
 
 
