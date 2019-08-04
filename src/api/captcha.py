@@ -24,8 +24,12 @@ async def post_captcha(request):
             {'id': data['id']}, request.app.jwt_secret,
             exp_time=request.app.cfg.captcha_timeout)}
     else:
+        field = 'id'
+        if request.app.captcha.is_issued(data['id']):
+            field = 'code'
+            request.app.captcha.remove_from_storage(data['id'])
         status = 422
-        body = {'error': 'Wrong CAPTCHA code'}
+        body = {'error': f'Wrong CAPTCHA {field}'}
     return json(body, status=status)
 
 

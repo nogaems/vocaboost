@@ -70,9 +70,9 @@ def process_captcha(request: Request):
 
     json = request.json
     if not json or 'captcha' not in json:
-        return InvalidUsage('No CAPTCHA provided')
+        raise InvalidUsage('No CAPTCHA provided')
     elif 'id' not in json['captcha'] or 'code' not in json:
-        return InvalidUsage('Wrong CAPTCHA object structure')
+        raise InvalidUsage('Wrong CAPTCHA object structure')
     else:
         if not request.app.captcha.check(json['captcha']['id'],
                                          json['captcha']['code']):
