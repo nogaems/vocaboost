@@ -17,7 +17,9 @@ async def login_handler(request):
     # Mitigation of time-attack
     user = user if user else model.User('', '')
     if auth.check_password(data['password'], user.password, user.salt):
-        token = await auth.issue_token(user.username, request.app.jwt_secret)
+        token = await auth.issue_token({'sub': user.username},
+                                       request.app.jwt_secret,
+                                       exp_time=request.app.cfg.auth_token_timeout)
         return json({'token': token})
     else:
         raise Unauthorized('Wrong username or password')

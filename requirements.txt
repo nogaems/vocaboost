@@ -2,3 +2,4 @@ sanic
 argon2
 pyjwt
 sqlalchemy
+pillow

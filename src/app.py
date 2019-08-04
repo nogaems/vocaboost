@@ -5,6 +5,8 @@ from sqlalchemy import create_engine
 from sanic import Sanic
 from api import api
 
+from faptcha import captcha
+
 from secrets import token_hex
 import argparse
 import os
@@ -37,6 +39,8 @@ if __name__ == '__main__':
     app.jwt_secret = token_hex(auth.jwt_secret_length)
 
     app.session = session
+    app.captcha = captcha.Captcha()
+    app.cfg = config
     app.run(host=config.host, port=config.port, debug=config.sanic_debug)
 
     session.close_all()
