@@ -39,7 +39,7 @@ if __name__ == '__main__':
     app.jwt_secret = token_hex(auth.jwt_secret_length)
 
     app.session = session
-    app.captcha = captcha.Captcha()
+    app.captcha = captcha.Captcha(random_seed=config.random_seed)
     app.cfg = config
     app.run(host=config.host, port=config.port, debug=config.sanic_debug)
 

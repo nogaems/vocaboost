@@ -5,3 +5,4 @@ sql_debug = True
 sanic_debug = True
 captcha_timeout = 180
 auth_token_timeout = 3600
+random_seed = 0
